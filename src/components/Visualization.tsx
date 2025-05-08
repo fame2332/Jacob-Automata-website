@@ -1,15 +1,20 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { graphviz } from 'd3-graphviz';
 import { useAutomata, getCurrentAutomaton } from '../context/AutomataContext';
 import { generateDotGraph } from '../automata';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Maximize2, Minimize2, RotateCcw, X as XIcon } from 'lucide-react';
 
 const Visualization: React.FC = () => {
   const { selectedSample, selectedType, currentSimulationStep, simulationStates, isSimulating } = useAutomata();
   const graphRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!graphRef.current) return;
 
+    setIsLoading(true);
     // Clear previous visualization
     graphRef.current.innerHTML = '';
 
@@ -28,10 +33,11 @@ const Visualization: React.FC = () => {
           return `${lhs} → ${formattedRhs}`;
         });
         graphRef.current.innerHTML = `
-          <div class="p-4 font-mono text-sm space-y-2 min-h-[384px]">
-            ${formattedProductions.map(prod => `<div>${prod}</div>`).join('')}
+          <div class="p-6 font-mono text-sm space-y-3 min-h-[384px] bg-gray-50 rounded-lg">
+            ${formattedProductions.map(prod => `<div class="p-2 hover:bg-gray-100 rounded transition-colors">${prod}</div>`).join('')}
           </div>
         `;
+        setIsLoading(false);
       }
       return;
     }
@@ -62,22 +68,94 @@ const Visualization: React.FC = () => {
               svg.style.height = '100%';
             }
           }
+          setIsLoading(false);
         });
     } catch (error) {
       console.error('Error rendering graph:', error);
+      setIsLoading(false);
     }
   }, [selectedSample, selectedType, currentSimulationStep, simulationStates, isSimulating]);
 
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+  };
+
+  const resetView = () => {
+    if (graphRef.current) {
+      const svg = graphRef.current.querySelector('svg');
+      if (svg) {
+        svg.style.transform = 'scale(1)';
+        svg.style.transformOrigin = 'center';
+      }
+    }
+  };
+
   return (
-    <div className="mt-6">
-      <h2 className="text-xl font-semibold text-gray-800 mb-3">Visualization</h2>
-      <div className="border border-gray-300 rounded-lg bg-white p-4 shadow-sm">
-        <div 
-          ref={graphRef} 
-          className={`w-full ${selectedType === 'PDA' ? 'h-[800px]' : selectedType === 'CFG' ? 'h-auto' : 'h-96'}`}
-        />
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mt-6"
+    >
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold text-gray-800">Visualization</h2>
+        <div className="flex space-x-2">
+          <button
+            onClick={resetView}
+            className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            title="Reset View"
+          >
+            <RotateCcw size={20} />
+          </button>
+          <button
+            onClick={toggleFullscreen}
+            className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+          >
+            {isFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+          </button>
+        </div>
       </div>
-    </div>
+      
+      <div className={`bg-white rounded-xl shadow-lg border border-gray-100 transition-all duration-300 ${
+        isFullscreen ? 'fixed inset-4 z-50 pt-20' : ''
+      }`}>
+        <div className="relative">
+          {/* X button for fullscreen close */}
+          {isFullscreen && (
+            <button
+              onClick={toggleFullscreen}
+              className="fixed top-20 right-8 z-[100] p-3 bg-white hover:bg-gray-100 rounded-full shadow-lg border border-gray-300 transition-colors flex items-center justify-center"
+              title="Close Fullscreen"
+            >
+              <XIcon size={24} className="text-gray-800" />
+            </button>
+          )}
+          <AnimatePresence>
+            {isLoading && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-white/80 flex items-center justify-center z-10"
+              >
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          
+          <div 
+            ref={graphRef} 
+            className={`w-full transition-all duration-300 ${
+              selectedType === 'PDA' 
+                ? isFullscreen ? 'h-[calc(100vh-8rem)]' : 'h-[800px]' 
+                : selectedType === 'CFG' 
+                  ? 'h-auto' 
+                  : isFullscreen ? 'h-[calc(100vh-8rem)]' : 'h-96'
+            }`}
+          />
+        </div>
+      </div>
+    </motion.div>
   );
 };
 

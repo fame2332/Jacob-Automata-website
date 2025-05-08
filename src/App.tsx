@@ -9,7 +9,6 @@ import { AutomataProvider } from './context/AutomataContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import LoadingScreen from './components/LoadingScreen';
-import InteractiveBackground from './components/InteractiveBackground';
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -30,10 +29,9 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen flex flex-col bg-white">
-        <InteractiveBackground />
         <AutomataProvider>
           <Header />
-          <main className="flex-grow relative z-10">
+          <main className="flex-grow relative z-20 pt-20">
             <AnimatePresence mode="wait">
               <Routes>
                 <Route path="/" element={

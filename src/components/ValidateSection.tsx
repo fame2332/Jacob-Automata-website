@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { validateString, StateCheck } from '../automata';
 import { useAutomata, getCurrentAutomaton } from '../context/AutomataContext';
-import { Play, Pause, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Play, Pause, ChevronLeft, ChevronRight, X, CheckCircle2, XCircle, PlayCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const ValidateSection: React.FC = () => {
   const { 
@@ -108,110 +109,155 @@ const ValidateSection: React.FC = () => {
   };
 
   return (
-    <div className="mt-6">
-      <h2 className="text-xl font-semibold text-gray-800 mb-3">Validate Strings</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="border border-gray-300 rounded-lg bg-white p-4 shadow-sm">
-          <textarea
-            className="w-full h-60 p-3 border border-gray-300 rounded-md font-mono text-sm"
-            placeholder={`Enter strings to validate, one per line\nFor example: ${getExampleString()}`}
-            value={validateInput}
-            onChange={(e) => {
-              setValidateInput(e.target.value);
-              setError(null);
-            }}
-          />
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mt-6"
+    >
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">Validate Strings</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+          <div className="relative">
+            <textarea
+              className="w-full h-60 p-4 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none"
+              placeholder={`Enter strings to validate, one per line\nFor example: ${getExampleString()}`}
+              value={validateInput}
+              onChange={(e) => {
+                setValidateInput(e.target.value);
+                setError(null);
+              }}
+            />
+            
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="mt-3 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm flex items-center justify-between"
+                >
+                  <span>{error}</span>
+                  <button 
+                    onClick={() => setError(null)} 
+                    className="text-red-600 hover:text-red-800 transition-colors"
+                  >
+                    <X size={16} />
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
           
-          {error && (
-            <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm flex items-center justify-between">
-              <span>{error}</span>
-              <button onClick={() => setError(null)} className="text-red-600 hover:text-red-800">
-                <X size={16} />
-              </button>
-            </div>
-          )}
-          
-          <div className="mt-3">
+          <div className="mt-4">
             <button
-              className="bg-black text-white py-2 px-4 rounded-md hover:bg-gray-800 transition"
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-2.5 px-6 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
               onClick={handleValidate}
             >
-              Validate
+              Validate Strings
             </button>
           </div>
         </div>
         
-        <div className="border border-gray-300 rounded-lg bg-white p-4 shadow-sm">
-          {selectedResult && selectedResult.stateChecks && (
-            <div className="mb-4">
-              <div className="p-3 rounded-md bg-gray-100 border border-gray-300">
-                <div className="flex justify-between items-center mb-2">
-                  <span className={`font-semibold ${selectedResult.isValid ? 'text-green-600' : 'text-red-600'}`}>
-                    {selectedResult.isValid ? 'Valid' : 'Invalid'} String: {selectedResult.input}
-                  </span>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={handlePrevStep}
-                      disabled={currentSimulationStep === 0}
-                      className="p-1 rounded hover:bg-gray-200 disabled:opacity-50"
-                    >
-                      <ChevronLeft size={20} />
-                    </button>
-                    <button
-                      onClick={togglePlay}
-                      className="p-1 rounded hover:bg-gray-200"
-                    >
-                      {isPlaying ? <Pause size={20} /> : <Play size={20} />}
-                    </button>
-                    <button
-                      onClick={handleNextStep}
-                      disabled={currentSimulationStep === (selectedResult.stateChecks?.length ?? 0) - 1}
-                      className="p-1 rounded hover:bg-gray-200 disabled:opacity-50"
-                    >
-                      <ChevronRight size={20} />
-                    </button>
+        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+          <AnimatePresence mode="wait">
+            {selectedResult && selectedResult.stateChecks && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="mb-6"
+              >
+                <div className="p-4 rounded-lg bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200">
+                  <div className="flex justify-between items-center mb-3">
+                    <div className="flex items-center space-x-2">
+                      {selectedResult.isValid ? (
+                        <CheckCircle2 className="w-5 h-5 text-green-500" />
+                      ) : (
+                        <XCircle className="w-5 h-5 text-red-500" />
+                      )}
+                      <span className={`font-semibold ${selectedResult.isValid ? 'text-green-600' : 'text-red-600'}`}>
+                        {selectedResult.isValid ? 'Valid' : 'Invalid'} String
+                      </span>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={handlePrevStep}
+                        disabled={currentSimulationStep === 0}
+                        className="p-2 rounded-lg hover:bg-gray-200 disabled:opacity-50 transition-colors"
+                      >
+                        <ChevronLeft size={20} />
+                      </button>
+                      <button
+                        onClick={togglePlay}
+                        className="p-2 rounded-lg hover:bg-gray-200 transition-colors"
+                      >
+                        {isPlaying ? <Pause size={20} /> : <Play size={20} />}
+                      </button>
+                      <button
+                        onClick={handleNextStep}
+                        disabled={currentSimulationStep === (selectedResult.stateChecks?.length ?? 0) - 1}
+                        className="p-2 rounded-lg hover:bg-gray-200 disabled:opacity-50 transition-colors"
+                      >
+                        <ChevronRight size={20} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="font-mono bg-gray-800 text-white p-2 rounded">
+                      {selectedResult.input}
+                    </div>
+                    <div className="flex justify-between text-gray-600">
+                      <div>Current State: <span className="font-mono font-semibold">
+                        {selectedResult.stateChecks[currentSimulationStep]?.state || 'N/A'}
+                      </span></div>
+                      <div>Step: {currentSimulationStep + 1} of {selectedResult.stateChecks.length}</div>
+                    </div>
                   </div>
                 </div>
-                <div className="text-sm">
-                  <div>Current State: <span className="font-mono">{
-                    selectedResult.stateChecks[currentSimulationStep]?.state || 'N/A'
-                  }</span></div>
-                  <div>Step: {currentSimulationStep + 1} of {selectedResult.stateChecks.length}</div>
-                </div>
-              </div>
-            </div>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
           
-          <h3 className="font-medium text-gray-700 mb-2">Result History</h3>
-          <div className="h-40 overflow-y-auto">
-            {results.map((result, index) => (
-              <div 
-                key={index} 
-                className={`p-2 mb-1 rounded-md text-sm flex justify-between items-center bg-gray-50 border border-gray-200`}
-              >
-                <span>
-                  <span className="font-mono">{result.input}</span>: 
-                  <span className={`ml-2 font-semibold ${result.isValid ? 'text-green-600' : 'text-red-600'}`}>
-                    {result.isValid ? 'Valid' : 'Invalid'}
-                  </span>
-                </span>
-                {result.stateChecks && (
-                  <button 
-                    className="text-xs bg-black text-white px-2 py-0.5 rounded hover:bg-gray-800"
-                    onClick={() => handleSimulate(result)}
-                  >
-                    Simulate
-                  </button>
-                )}
-              </div>
-            ))}
+          <h3 className="font-medium text-gray-700 mb-3">Result History</h3>
+          <div className="h-60 overflow-y-auto space-y-2 pr-2">
+            <AnimatePresence>
+              {results.map((result, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  className="p-3 rounded-lg bg-gray-50 border border-gray-200 flex justify-between items-center group hover:bg-gray-100 transition-colors"
+                >
+                  <div className="flex items-center space-x-2">
+                    {result.isValid ? (
+                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    ) : (
+                      <XCircle className="w-4 h-4 text-red-500" />
+                    )}
+                    <span className="font-mono">{result.input}</span>
+                  </div>
+                  {result.stateChecks && (
+                    <button 
+                      className="text-xs bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-3 py-1.5 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 flex items-center space-x-1 opacity-0 group-hover:opacity-100"
+                      onClick={() => handleSimulate(result)}
+                    >
+                      <PlayCircle size={14} />
+                      <span>Simulate</span>
+                    </button>
+                  )}
+                </motion.div>
+              ))}
+            </AnimatePresence>
             {results.length === 0 && (
-              <div className="text-gray-500 text-sm italic">No validation results yet</div>
+              <div className="text-gray-500 text-sm italic text-center py-8">
+                No validation results yet
+              </div>
             )}
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
