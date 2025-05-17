@@ -20,8 +20,8 @@ const RegexTable: React.FC = () => {
   };
 
   const regexStrings = {
-    sample1: '(aa+bb)(aba+bab+bbb)(a+b)*(aa+bb)(aa+bb)*(ab*ab*a)(ab*ab*a)*(bbb+aaa)(a+b)*',
-    sample2: '(1*01*01*)(11+00)(10+01)*(1+0)(11+00)(1+0+11+00+101+111+000)(11+00)*(10*10*1)(11+00)*'
+    sample1: '(1+0)(1+0)*(11+00+01+10)*(11+00+01+10)(1010+001+111+000)(1+0)*(101+011+111+010)(1+0)*',
+    sample2: '(a+b+aa+bb+aba)(a+b+bb+aa)*(a+b+aa+bb)(a+b)*(ab+ba+bab+aba)(ab+bb+abbb+bab+aa)(a+b)*'
   };
 
   const tableVariants = {

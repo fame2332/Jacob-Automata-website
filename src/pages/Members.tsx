@@ -23,22 +23,22 @@ const Members: React.FC = () => {
       image: "/images/Ian.jpg",
     },
     {
-      name: "name",
+      name: "Stephen Leanillo",
       role: "Developer",
       description: "Backend developer with expertise in computational theory. Implements core algorithms for automata validation and testing.",
       github: "",
       email: "example.com",
       website: "secret",
-      image: "/images/Neil1.jpg",
+      image: "/images/Leanillo.jpg",
     },
     {
-      name: "name",
+      name: "Juan Miguel Luyao",
       role: "Developer",
       description: "Full-stack developer specializing in state machine implementations and optimization algorithms for automata processing.",
       github: "",
       email: "s@example.com",
       website: "secret",
-      image: "/images/An1.jpg",
+      image: "/images/Luyao.jpg",
     }
   ];
 
