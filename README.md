@@ -32,7 +32,7 @@ A modern web application showcasing automata theory concepts with an interactive
 
 1. Clone the repository:
    ```bash
-   git clone [your-repository-url]
+   git clone https://github.com/fame2332/Jacob-Automata-website
    cd automata-project
    ```
 
