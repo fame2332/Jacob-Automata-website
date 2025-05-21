@@ -1,3 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom cursor styles */
+@layer base {
+  html {
+    cursor: url("data:image/svg+xml;utf8,<svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'><circle cx='12' cy='12' r='8' fill='%234F46E5' opacity='0.4'/><circle cx='12' cy='12' r='4' fill='%234F46E5'/></svg>") 12 12, auto;
+  }
+
+  button, a, input, select, textarea, [role="button"] {
+    cursor: url("data:image/svg+xml;utf8,<svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'><circle cx='12' cy='12' r='10' stroke='%234F46E5' stroke-width='2'/><circle cx='12' cy='12' r='4' fill='%234F46E5'/></svg>") 12 12, pointer;
+  }
+}
+
+/* Additional utility classes for cursor control */
+.cursor-automata {
+  cursor: url("data:image/svg+xml;utf8,<svg width='28' height='28' viewBox='0 0 28 28' fill='none' xmlns='http://www.w3.org/2000/svg'><circle cx='14' cy='14' r='12' stroke='%234F46E5' stroke-width='2' stroke-dasharray='4 2'/><circle cx='14' cy='14' r='5' fill='%234F46E5'/></svg>") 14 14, auto;
+}
+
+.cursor-default {
+  cursor: default;
+}

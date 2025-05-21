@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { graphviz } from 'd3-graphviz';
 import { useAutomata, getCurrentAutomaton } from '../context/AutomataContext';
-import { generateDotGraph } from '../automata';
+import { generateDotGraph, CFG, DFA, PDA } from '../automata';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Maximize2, Minimize2, RotateCcw, X as XIcon } from 'lucide-react';
 
@@ -22,7 +22,7 @@ const Visualization: React.FC = () => {
     
     if (selectedType === 'CFG') {
       if (graphRef.current) {
-        const productions = (automaton as any).productions;
+        const productions = (automaton as CFG).productions;
         const formattedProductions = productions.map((prod: string) => {
           // Format each production with proper spacing and line breaks
           const [lhs, rhs] = prod.split('→').map(s => s.trim());
@@ -41,12 +41,28 @@ const Visualization: React.FC = () => {
       }
       return;
     }
+    
+    // Using static images for PDA visualization
+    if (selectedType === 'PDA') {
+      const imagePath = selectedSample === 'sample1' ? '/images/PDA1.png' : '/images/PDA2.png';
+      graphRef.current.innerHTML = `
+        <div class="flex justify-center items-center h-full p-4">
+          <img 
+            src="${imagePath}" 
+            alt="${selectedSample === 'sample1' ? 'PDA 1' : 'PDA 2'}" 
+            class="max-w-full max-h-full object-contain rounded-lg shadow-md transition-all duration-300 hover:shadow-lg"
+          />
+        </div>
+      `;
+      setIsLoading(false);
+      return;
+    }
 
     const highlightedState = isSimulating && simulationStates.length > 0 
       ? simulationStates[currentSimulationStep] 
       : undefined;
       
-    const dotGraph = generateDotGraph(automaton as any, highlightedState, '#000000');
+    const dotGraph = generateDotGraph(automaton as DFA | PDA, highlightedState, '#000000');
 
     try {
       graphviz(graphRef.current, {
@@ -145,7 +161,7 @@ const Visualization: React.FC = () => {
           
           <div 
             ref={graphRef} 
-            className={`w-full transition-all duration-300 ${
+            className={`w-full transition-all duration-300 cursor-automata ${
               selectedType === 'PDA' 
                 ? isFullscreen ? 'h-[calc(100vh-8rem)]' : 'h-[800px]' 
                 : selectedType === 'CFG' 

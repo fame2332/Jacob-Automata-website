@@ -234,73 +234,44 @@ export const PDA_2: PDA = {
 };
 
 export function generateDotGraph(automaton: DFA | PDA, highlightedState?: string, color: string = '#000000'): string {
+  // Skip graph generation for PDA as we're using static images
+  if ('push_states' in automaton) {
+    return '';
+  }
+  
+  // At this point, automaton is a DFA
+  const dfa = automaton as DFA;
+  
   let dot = 'digraph G {\n';
   dot += '  bgcolor="transparent";\n';
   dot += '  node [fontname="Inter"];\n';
   dot += '  edge [fontname="Inter"];\n';
-  
-  if ('push_states' in automaton) {
-    dot += '  rankdir=TB;\n';
-    dot += '  node [shape=diamond, style=filled, fillcolor=white, color=black];\n';
-  } else {
-    dot += '  rankdir=LR;\n';
-    dot += '  node [shape=circle, style=filled, fillcolor=white, color=black];\n';
-  }
+  dot += '  rankdir=LR;\n';
+  dot += '  node [shape=circle, style=filled, fillcolor=white, color=black];\n';
 
-  const states = 'states' in automaton ? automaton.states : [];
-  const endStates = 'end_states' in automaton ? automaton.end_states :
-                    'accept_states' in automaton ? automaton.accept_states : [];
+  const states = dfa.states;
+  const endStates = dfa.end_states;
 
-  if ('push_states' in automaton) {
-    dot += '  start [shape=none, label=""];\n';
-    dot += `  start -> ${automaton.start_state} [label="start"];\n`;
-
-    states.forEach(state => {
-      let shape = 'diamond';
-      let attributes = [];
-
-      if (state === automaton.start_state || automaton.accept_states.includes(state)) {
-        shape = 'ellipse';
-      } else if (automaton.push_states.includes(state)) {
-        shape = 'rectangle';
-      }
-
-      if (state === highlightedState) {
-        attributes.push(`fillcolor="${color}"`);
-        attributes.push('fontcolor="white"');
-      } else {
-        attributes.push('fillcolor="white"');
-        attributes.push('fontcolor="black"');
-      }
-
-      if (automaton.accept_states.includes(state)) {
-        attributes.push('peripheries=2');
-      }
-
-      attributes.push(`shape=${shape}`);
-      dot += `  ${state} [${attributes.join(', ')}];\n`;
-    });
-  } else {
-    states.forEach(state => {
-      let nodeAttributes = ['style=filled'];
-      if (endStates.includes(state)) {
-        nodeAttributes.push('shape=doublecircle');
-      }
-      if (state === highlightedState) {
-        nodeAttributes.push(`fillcolor="${color}"`);
-        nodeAttributes.push('fontcolor="white"');
-      } else {
-        nodeAttributes.push('fillcolor="white"');
-        nodeAttributes.push('fontcolor="black"');
-      }
-      dot += `  ${state} [${nodeAttributes.join(', ')}];\n`;
-    });
-  }
+  // Only handle DFA state rendering
+  states.forEach(state => {
+    let nodeAttributes = ['style=filled'];
+    if (endStates.includes(state)) {
+      nodeAttributes.push('shape=doublecircle');
+    }
+    if (state === highlightedState) {
+      nodeAttributes.push(`fillcolor="${color}"`);
+      nodeAttributes.push('fontcolor="white"');
+    } else {
+      nodeAttributes.push('fillcolor="white"');
+      nodeAttributes.push('fontcolor="black"');
+    }
+    dot += `  ${state} [${nodeAttributes.join(', ')}];\n`;
+  });
 
   if ('transitions' in automaton) {
     const transitionGroups = new Map<string, string[]>();
     
-    Object.entries(automaton.transitions).forEach(([key, value]) => {
+    Object.entries(dfa.transitions).forEach(([key, value]) => {
       const [source, symbol] = key.split(',');
       const transitionKey = `${source}->${value}`;
       if (!transitionGroups.has(transitionKey)) {
